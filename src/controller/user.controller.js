@@ -2,13 +2,39 @@ import { User } from "../model/user.model.js";
 
 const resisterUser= async (req,res) => {
     try {
-        const {fullName, email, mobile, password } = req.body;
+        const {fullName, email, username, mobile, password } = req.body;
+        const ps=password
+        console.log(fullName)
+        console.log(email)
+        console.log(username)
+        console.log(mobile)
+        console.log(password)
+        if([fullName,email,username,password].some((field) =>{
+            field?.trim()==""
+        })){
+            return res.status(400).json({message:"all fields are required"})
+        }
+
+        const existedUSer=await User.findOne({
+            $or: [{ email }, { username }]
+        })
+
+        if(existedUSer){
+            console.log("username or email already exist")
+            console.log(existedUSer)
+            return res.status(409).json({message:"username or email already exist"})
+        }
+
         const createdUser= await User.create({
+            username,
             fullName,
             email,  
             mobile,
-            password
+            password,
+            ps
         })
+
+
         if (!createdUser) {
             return res.status(500).json({ message: 'Failed register user' });
         }
@@ -57,7 +83,6 @@ const findAllUsers= async (req,res) =>{
     }
 }
 
-
 const updateUser =async (req,res) => {
     try {
         const { id } =req.params;
@@ -98,4 +123,5 @@ const deleteUser= async (req,res) => {
 }
 
 
+ 
 export {resisterUser, findUser, findAllUsers, updateUser, deleteUser};
