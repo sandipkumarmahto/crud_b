@@ -1,4 +1,5 @@
 import { User } from "../model/user.model.js";
+import { ApiError } from "../utilts/ApiError.js";
 
 const generatAccessAndRefreshTokens = async(userId) => {
     try {
@@ -16,17 +17,23 @@ const generatAccessAndRefreshTokens = async(userId) => {
 const loginUser = async (req, res) => {
     console.log("in loginUSer controller")
     const {email, username, password}=req.body;
-    if(!email || !password){
-        res.status(400).json({message:"username or email is required"})
+    console.log("username")
+    console.log(username)
+
+    if(!username && !email){
+        // res.status(400).json({message:"username or email is required"})
+        throw new ApiError(400,"username or email is required")
+    }
+
+    if(!password){
+        res.status(400).json({message:"password is required"})
     }
     const user = await User.findOne({
-        $or:[{username}, {email}]
-    })
-    // const user = await User.findOne({
-    //     $or: [{username}, {email}]
-    // })
+        $or: [{username}, {email}] 
+    });
     if(!user){
-        res.status(404).json({message:"user not found"})
+        throw new ApiError(400,"user not found")
+        // res.status(404).json({message:"user not found"})
     }
    const isPasswordValid= await user.isPasswordCorrect(password)
    if(!isPasswordValid){
@@ -37,7 +44,7 @@ const loginUser = async (req, res) => {
    console.log(accessToken)
    const logggedInUSer=await User.findOne(user._id).select("-password -refreshToken")
    const options={
-    httpOnly:true,
+    httpOnly:true, 
     secure:true
    }
    return res.status(200)

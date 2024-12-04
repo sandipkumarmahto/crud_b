@@ -1,0 +1,6 @@
+PORT=3500
+MONGODB_URL=mongodb+srv://sandipmahtomail:sand3341@cluster1.pa38e.mongodb.net
+ACCESS_TOKEN_SECRET=KLIDSADAFIKiiukkdjfie859387sdlkfasdf80AUSDKFJA84DF9dAUOPADoiuootuq0945jkopiuslfasdf-=llkjhsdfasd-adasdfj
+ACCESS_TOKEN_EXPIRY=1d
+REFRESH_TOKEN_SECRET=sdfineiJIENSDAOI9348KAFAAF-fjha55747s32a5dfasasdfqfLIOTUWSALDFljoirgtaljadfalaeradsfkasdfa
+REFRESH_TOKEN_EXPIRY=10d
