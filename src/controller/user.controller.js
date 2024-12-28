@@ -1,8 +1,9 @@
 import { User } from "../model/user.model.js";
 import { ApiError } from "../utilts/ApiError.js";
+import { uploadOnCloudinary } from "../utilts/Cloudinary.js";
 
 const resisterUser = async (req, res) => {
-  try {
+  // try {
     const { fullName, email, username, mobile, password } = req.body;
     const ps = password;
     console.log(fullName);
@@ -10,12 +11,12 @@ const resisterUser = async (req, res) => {
     console.log(username);
     console.log(mobile);
     console.log(password);
-    if (fullName || email || username || passwod) {
-      throw new ApiError(400, "all fields are required");
+    if (fullName==="" || !email==="" || !username==="" || !password==="") {
+      res.staus(400).json(new ApiError(400, "all fields are required"));
     }
-
+ 
     // if([fullName,email,username,password].some((field) =>{
-    //     field?.trim()==""
+    //     field?.trim()===""
     // })){
     //     return res.status(400).json({message:"all fields are required"})
     // }
@@ -31,34 +32,45 @@ const resisterUser = async (req, res) => {
       throw new ApiError(409, "username or email already exist");
     }
 
+    const avatartLocalPath=req.file?.path;
+    if(!avatartLocalPath){
+      throw new ApiError(400,"avatar file is required")
+    }
+    const avatar=await uploadOnCloudinary(avatartLocalPath)
+    if(!avatar){
+      throw new ApiError(400,"error in uploading")
+    }
+
     const createdUser = await User.create({
       username,
       fullName, 
       email,
       mobile,
+      avatar:avatar.url,
       password,
       ps,
-    });
+    }); 
 
     if (!createdUser) {
       return res.status(500).json({ message: "Failed register user" });
     }
     res.status(201).json({
       message: "User registered successfully",
-      user: {
-        id: createdUser._id,
-        name: createdUser.fullName,
-        mobile: createdUser.mobile,
-        email: createdUser.email,
-      },
+      user: createdUser
+      // {
+      //   id: createdUser._id,
+      //   name: createdUser.fullName,
+      //   mobile: createdUser.mobile,
+      //   email: createdUser.email,
+      // },
     });
     console.log("user registered" + createdUser);
-  } catch (error) {
-    console.log(error);
-    res
-      .status(500)
-      .json({ message: "something went wrong while registring the user" });
-  }
+  // } catch (error) {
+  //   console.log(error);
+  //   res
+  //     .status(500)
+  //     .json({ message: "something went wrong while registring the user" });
+  // }
 };
 
 const findUser = async (req, res) => {
@@ -78,6 +90,7 @@ const findUser = async (req, res) => {
 
 const findAllUsers = async (req, res) => {
   try {
+    console.log("in the findall user constroller")
     const users = await User.find();
     if (!users) {
       res.status(404).json({ message: "user not found" });
